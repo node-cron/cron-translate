@@ -198,6 +198,11 @@ describe('toCron', () => {
             assert.equal('0 0 0 1 1-10 *', result); 
         });
 
+        it('should translate from month 1 to 10', () => {
+            let result = toCron('from jan to mar');
+            assert.equal('0 0 0 1 jan-mar *', result); 
+        });
+
         it('should translate from month 2 to 6 from hour 2 to 4 every second 42', () => {
             let result = toCron('from month 2 to 6 from hour 2 to 4 every second 42,43,44 on sunday');
             assert.equal('42,43,44 0 2-4 1 2-6 sunday', result); 
