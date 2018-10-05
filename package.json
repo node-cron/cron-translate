@@ -2,7 +2,7 @@
   "name": "cron-translate",
   "version": "1.0.0",
   "description": "Translates text to cron expression",
-  "main": "main.js",
+  "main": "src/main.js",
   "scripts": {
     "test": "nyc --reporter=html --reporter=text --reporter=json-summary mocha --recursive"
   },
