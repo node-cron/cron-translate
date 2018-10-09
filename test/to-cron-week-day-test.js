@@ -112,5 +112,10 @@ describe('toCron', () => {
             let result = toCron('from week day 1 to 4');
             assert.equal('0 0 0 * * 1-4', result); 
         });
+
+        it('should translate from week day 1 to 4', () => {
+            let result = toCron('from mon to wed');
+            assert.equal('0 0 0 * * mon-wed', result); 
+        });
     });
 });
