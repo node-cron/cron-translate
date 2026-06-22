@@ -1,6 +1,10 @@
 # cron-translate
 
-Translate english to cron expressions
+Translate plain English into cron expressions.
+
+`cron-translate` turns the schedule you would describe out loud ("every weekday at
+6pm", "every 15 minutes", "last friday of the month") into a 6-field cron
+expression for [node-cron](https://www.nodecron.com).
 
 ## Usage
 
@@ -15,7 +19,7 @@ ESM:
 ```js
 import { toCron } from 'cron-translate';
 
-const cron = toCron('every minute');
+const cron = toCron('every day at 9am'); // "0 0 9 * * *"
 ```
 
 CommonJS:
@@ -23,60 +27,113 @@ CommonJS:
 ```js
 const { toCron } = require('cron-translate');
 
-const cron = toCron('every minute');
+const cron = toCron('every day at 9am'); // "0 0 9 * * *"
 ```
 
-The package ships both ESM and CommonJS builds plus TypeScript type declarations. Requires Node.js >= 20.
+The package ships both ESM and CommonJS builds plus TypeScript type declarations.
+Requires Node.js >= 20.
+
+## Output
+
+`toCron` returns a 6-field node-cron expression:
+
+```
+second  minute  hour  day-of-month  month  day-of-week
+```
+
+Day-of-week is `0`-`6` with `0` = Sunday. Month and weekday names you write in the
+input are converted to numbers in the output.
 
 ## Syntax
 
-`cron-translate` allows to use some fields and operators to compose the expressions that are translatable to cron expressions
+A schedule is a sentence with one required frequency and optional clauses:
 
-### Fields
+```
+every <frequency> [at <time>] [on <day>] [in <month>]
+```
 
-The allowed fields are `second`, `minute`, `hour`, `day`, `month`, `week day`, or the plurals `seconds`, `minutes`, `hours`, `days`, `months`, `week days`.
+### Frequency
 
-### Operators
+- `every <unit>` — `every minute`, `every hour`, `every day`, `every week`, `every month`, `every year`
+- `every <n> <unit>` — `every 5 minutes`, `every 2 hours`
+- `every other <unit>` — `every other day`
 
- - **every** operator may be used in three ways:
-    - `every <field>`: sets the field value to `*`. e.g: `every day`;
-    - `every <value> <field>`: sets the field value to `*/<value>`. e.g: `every 10 minutes`;
-    - `every <field> <value>`: sets the field value to `<value>`. e.g: `every hour 2`;
- - **on** operator may be use as the `every <field> value`:
-    - `on <field> <value>`: sets the field value to `<value>`. e.g: `on hour 2`;
- - **from to** operator is used to create ranges.
-    - `from <field> <value1> to <value2>`: It sets the field value `<value1>-<value2>`. e.g: `from minute 2 to 10`;
+### Time of day
 
-### Values
+- 12-hour: `at 9am`, `at 6:30pm`
+- 24-hour: `at 14:30`
+- words: `at noon`, `at midnight`
+- day-parts as a whole schedule: `every morning`, `every evening`, `every night`
+- multiple times: `at 9am and 5pm`
+- hour range: `between 9am and 5pm`
 
-The allowed values are:
- - **Numbers**: for all fields.
- - **Names**: for months and week days, full names and abreviations are allowed. e.g: `monday` and `mon` are the same.
+### Days and months
 
+- weekdays: `every monday`, `on friday`, `every weekday`, `every weekend`
+- day-of-month: `on day 15`, `the 15th of every month`
+- months: `in march`, `every january`
+- ordinals (node-cron `L` / `#`): `last day of the month`, `last friday of the month`, `first monday of the month`
+
+### Values, lists, and ranges
+
+Any field can take a single value, a list, or a range. Address a field by name
+(`second`, `minute`, `hour`, `day`, `month`) or by weekday/month name:
+
+| | example | result |
+|---|---|---|
+| single | `at second 30` | `30 * * * * *` |
+| list | `at minutes 0, 15, 30 and 45` | `0 0,15,30,45 * * * *` |
+| range | `at minute 1 to 30` | `0 1-30 * * * *` |
+| day range | `on day 1 to 10` | `0 0 0 1-10 * *` |
+| month list | `in march and june` | `0 0 0 1 3,6 *` |
+| weekday range | `on monday to friday` | `0 0 0 * * 1-5` |
+
+Lists use `,` / `and`; ranges use `to` / `through`. Names and abbreviations both
+work (`january` / `jan`, `monday` / `mon`).
+
+### Combining clauses
+
+Clauses for different fields compose:
+
+- `every weekday at 6pm` → `0 0 18 * * 1-5`
+- `every 5 minutes at 9am` → `0 */5 9 * * *`
+- `every 30 minutes between 9am and 5pm on weekdays` → `0 */30 9-17 * * 1-5`
+- `first monday of the month at 9am` → `0 0 9 * * 1#1`
 
 ## Examples
 
-### Every usage
+| Input | Cron |
+|---|---|
+| `every minute` | `0 * * * * *` |
+| `every 15 minutes` | `0 */15 * * * *` |
+| `every hour` | `0 0 * * * *` |
+| `every day at noon` | `0 0 12 * * *` |
+| `every monday at 9am` | `0 0 9 * * 1` |
+| `every weekend` | `0 0 0 * * 0,6` |
+| `every january` | `0 0 0 1 1 *` |
+| `last friday of the month` | `0 0 0 * * 5L` |
 
-- `every second` is converted to `* * * * * *`;
-- `every minute` is converted to `0 * * * * *`;
-- `every hour` is converted to `0 0 * * * *`;
-- `every sunday` is converted to `0 0 0 * * sunday`; 
-- `every january` is converted to `0 0 0 * january *`; 
-- `every 2 minutes` is converted to `0 */2 * * * *`;
-- `every day 10` is converted to `0 0 0 10 * *`;
+## Errors
 
-### On usage
+`toCron` throws a `CronTranslateError` when the phrase can't be turned into a valid
+cron expression: unrecognized words, malformed input, conflicting values for the
+same field, or values out of range (minute `0`-`59`, day `1`-`31`, an interval
+below `1`, and so on). The error carries a `hint` pointing at the node-cron syntax
+reference.
 
-- `on minute 2` is converted to `0 2 * * * *`;
-- `on sat` is converted to `0 0 0 * * sat`;
+```js
+import { toCron, CronTranslateError } from 'cron-translate';
 
-### From to usage
-- `from minute 2 to 30` is converted to `0 2-30 * * * *`;
+try {
+  toCron('the weekday nearest the 15th');
+} catch (err) {
+  if (err instanceof CronTranslateError) {
+    console.error(err.message, err.hint);
+  }
+}
+```
 
-### Combining expressions
-
-The expressions may be combined to create complex cron expresions:
-
-- `every 10 minutes from hour 2 to 8` is converted to `0 */10 2-8 * * *`;
-- `every monday on hour 2 from minute 10 to 20` is converted to `0 10-20 2 * * monday`;
+Things cron itself (or node-cron) can't express are rejected on purpose rather
+than guessed: the `W` nearest-weekday character, counted recurrence (`until`,
+`for N times`), and arbitrary natural language. For those, write the cron directly
+with the help of the [node-cron syntax docs](https://www.nodecron.com/cron-syntax.html).
