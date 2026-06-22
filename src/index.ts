@@ -1,4 +1,4 @@
-import { toCron } from './to-cron';
+import { toCron, CronTranslateError } from './to-cron';
 
-export { toCron };
+export { toCron, CronTranslateError };
 export default toCron;
