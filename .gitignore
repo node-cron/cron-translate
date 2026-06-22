@@ -78,3 +78,9 @@ typings/
 
 
 # End of https://www.gitignore.io/api/node
+
+# Build output
+dist/
+
+# Claude Code worktrees
+.claude/
