@@ -113,6 +113,25 @@ Clauses for different fields compose:
 | `every january` | `0 0 0 1 1 *` |
 | `last friday of the month` | `0 0 0 * * 5L` |
 
+## Reverse: describe a cron expression
+
+`toHuman` goes the other way, turning a cron expression (5 or 6 fields) back into
+plain English. It's the readback for a `toCron` call: "you wrote X, here is the
+cron, which reads as Y."
+
+```js
+import { toHuman } from 'cron-translate';
+
+toHuman('0 0 9 * * *');        // "at 9am"
+toHuman('0 0 18 * * 1-5');     // "at 6pm on monday to friday"
+toHuman('0 */5 9 * * *');      // "every 5 minutes at 9am"
+toHuman('0 0 0 * * 5L');       // "last friday of the month"
+```
+
+The output is phrased so that `toCron` parses it back to the same expression:
+`toCron(toHuman(cron))` returns the original cron. The English may read differently
+from the phrase you started with, but it describes the same schedule.
+
 ## Errors
 
 `toCron` throws a `CronTranslateError` when the phrase can't be turned into a valid
