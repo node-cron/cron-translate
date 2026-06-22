@@ -1,0 +1,61 @@
+name: Publish to npm
+
+on:
+  # Manual publish, with a choice of dist-tag (for prereleases etc.).
+  workflow_dispatch:
+    inputs:
+      dist_tag:
+        description: 'npm dist-tag to publish under'
+        type: choice
+        default: latest
+        required: true
+        options:
+          - latest
+          - beta
+          - next
+
+  # Called by release-please.yml right after it cuts a release, so merging the
+  # `chore(main): release X.Y.Z` PR publishes automatically. A reusable-workflow
+  # call (rather than `on: release`) is used because a Release created with the
+  # default GITHUB_TOKEN does not trigger event-based workflows.
+  workflow_call:
+    inputs:
+      dist_tag:
+        description: 'npm dist-tag to publish under'
+        type: string
+        default: latest
+        required: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    # OIDC trusted publishing: the id-token is exchanged with npm at publish
+    # time, so no NPM_TOKEN secret is needed. It also enables provenance.
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+          cache: npm
+
+      # Trusted publishing requires npm >= 11.5.1; node 22 ships an older npm.
+      - name: Upgrade npm
+        run: npm install -g npm@latest
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test:coverage
+      - run: npm run build
+
+      - name: Publish to npm
+        # `inputs.dist_tag` comes from workflow_dispatch (chosen) or workflow_call
+        # (defaults to latest).
+        run: npm publish --provenance --access public --tag "${{ inputs.dist_tag }}"
