@@ -10,11 +10,23 @@ Install `cron-translate`
 npm install --save cron-translate
 ```
 
-```js
-const cronTranslate = require('cron-translate');
+ESM:
 
-let cron = cronTranslate.toCron('every minute');
+```js
+import { toCron } from 'cron-translate';
+
+const cron = toCron('every minute');
 ```
+
+CommonJS:
+
+```js
+const { toCron } = require('cron-translate');
+
+const cron = toCron('every minute');
+```
+
+The package ships both ESM and CommonJS builds plus TypeScript type declarations. Requires Node.js >= 20.
 
 ## Syntax
 
