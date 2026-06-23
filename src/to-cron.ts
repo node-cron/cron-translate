@@ -221,6 +221,11 @@ export function toCron(expression: string): string {
   function parseEvery(): void {
     i++; // consume 'every'
     const token = peek();
+    // "every last monday of the month", "every first monday", "every last day"
+    if (token in ORDINALS && (words[i + 1] in WEEKDAYS || (token === 'last' && words[i + 1] === 'day'))) {
+      parseOrdinalWeekday();
+      return;
+    }
     if (token === 'other') { i++; everyInterval(words[i++], 2); return; }
     if (isNumber(token)) { const n = Number(token); i++; everyInterval(words[i++], n); return; }
     if (UNITS.has(token)) { i++; everyUnit(token); return; }
@@ -313,7 +318,11 @@ export function toCron(expression: string): string {
     else if (token === 'on') parseOn();
     else if (token === 'in') parseIn();
     else if (token in WEEKDAYS) set('dow', readValues(DOW));
-    else if (token === 'the' || ordinalDay(token) !== null) {
+    else if (token === 'the' && words[i + 1] in ORDINALS
+      && (words[i + 2] in WEEKDAYS || (words[i + 1] === 'last' && words[i + 2] === 'day'))) {
+      i++; // consume 'the' before "last monday of the month"
+      parseOrdinalWeekday();
+    } else if (token === 'the' || ordinalDay(token) !== null) {
       if (token === 'the') i++;
       set('dom', readValues(FIELDS.day));
       consumeOfTheMonth();
