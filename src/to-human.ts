@@ -154,9 +154,9 @@ export function toHuman(expression: string): string {
   if (parts.length !== 5 && parts.length !== 6) {
     throw new CronTranslateError(`Expected a 5- or 6-field cron expression, got ${parts.length} fields.`);
   }
-  const [sec, min, hour, dom, monthRaw, dowRaw] = parts.length === 6
-    ? parts
-    : ['0', ...parts];
+  // `?` (Quartz "no specific value") means no constraint on the field, same as `*`.
+  const fields = (parts.length === 6 ? parts : ['0', ...parts]).map((f) => (f === '?' ? '*' : f));
+  const [sec, min, hour, dom, monthRaw, dowRaw] = fields;
   const month = mapNames(monthRaw, MONTH_NUMS);
   const dow = mapNames(dowRaw, DOW_NUMS);
 
