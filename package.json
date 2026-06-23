@@ -1,7 +1,7 @@
 {
   "name": "cron-translate",
   "version": "2.0.0",
-  "description": "Translates text to cron expression",
+  "description": "Translate plain English into cron expressions. Zero-dependency, TypeScript-native, built for node-cron.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -36,7 +36,18 @@
   },
   "keywords": [
     "cron",
-    "translate"
+    "crontab",
+    "cron-expression",
+    "cron-parser",
+    "cron-generator",
+    "cron-translate",
+    "node-cron",
+    "schedule",
+    "scheduler",
+    "scheduling",
+    "natural-language",
+    "english-to-cron",
+    "recurring"
   ],
   "author": "Lucas Merencia <lucas@merencia.com>",
   "license": "ISC",

@@ -1,5 +1,11 @@
 # cron-translate
 
+[![CI](https://github.com/node-cron/cron-translate/actions/workflows/ci.yml/badge.svg)](https://github.com/node-cron/cron-translate/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/cron-translate.svg)](https://www.npmjs.com/package/cron-translate)
+[![npm downloads](https://img.shields.io/npm/dm/cron-translate.svg)](https://www.npmjs.com/package/cron-translate)
+[![types](https://img.shields.io/npm/types/cron-translate.svg)](https://www.npmjs.com/package/cron-translate)
+[![license](https://img.shields.io/npm/l/cron-translate.svg)](https://www.npmjs.com/package/cron-translate)
+
 Translate plain English into cron expressions.
 
 `cron-translate` turns the schedule you would describe out loud ("every weekday at
