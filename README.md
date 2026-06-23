@@ -72,7 +72,7 @@ every <frequency> [at <time>] [on <day>] [in <month>]
 - weekdays: `every monday`, `on friday`, `every weekday`, `every weekend`
 - day-of-month: `on day 15`, `the 15th of every month`
 - months: `in march`, `every january`
-- ordinals (node-cron `L` / `#`): `last day of the month`, `last friday of the month`, `first monday of the month`
+- ordinals (node-cron `L` / `#`): `last friday of the month`, `first monday of the month`, `last day of the month` (an `every` or `the` prefix works too)
 
 ### Values, lists, and ranges
 

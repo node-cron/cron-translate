@@ -103,6 +103,13 @@ describe('toCron — ordinals (L / #)', () => {
     ['last day of the month', '0 0 0 L * *'],
     ['last friday of the month', '0 0 0 * * 5L'],
     ['first monday of the month at 9am', '0 0 9 * * 1#1'],
+    // "every" / "the" prefixes on ordinal weekdays
+    ['every last monday of the month', '0 0 0 * * 1L'],
+    ['the last monday of the month', '0 0 0 * * 1L'],
+    ['every first monday of the month', '0 0 0 * * 1#1'],
+    ['every second tuesday of the month', '0 0 0 * * 2#2'],
+    ['every last day of the month', '0 0 0 L * *'],
+    ['the last day of the month', '0 0 0 L * *'],
   ]);
 });
 
