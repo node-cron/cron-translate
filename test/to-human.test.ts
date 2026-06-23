@@ -69,6 +69,17 @@ describe('toHuman — accepts month/weekday names in input', () => {
   });
 });
 
+describe('toHuman — treats ? (Quartz no-value) like *', () => {
+  const cases: [string, string][] = [
+    ['0 0 9 ? * MON', 'at 9am on monday'],
+    ['0 0 9 15 * ?', 'at 9am on day 15'],
+    ['0 0 0 ? * 1-5', 'on monday to friday'],
+  ];
+  it.each(cases)('%s => %s', (cron, expected) => {
+    expect(toHuman(cron)).toBe(expected);
+  });
+});
+
 describe('toHuman — rejects malformed input', () => {
   it.each(['', 'a b c', '1 2 3 4 5 6 7'])('rejects %j', (bad) => {
     expect(() => toHuman(bad)).toThrow();
